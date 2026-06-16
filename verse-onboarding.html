@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Welcome to Verse</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --c-bg: #05040f;
+    --c-bg2: #0a0820;
+    --c-purple: #8b3fff;
+    --c-cyan: #00d4ff;
+    --c-pink: #d946ef;
+    --c-white: #f0eeff;
+    --c-muted: #8a85b0;
+    --grad-main: linear-gradient(135deg, #00d4ff 0%, #8b3fff 50%, #d946ef 100%);
+    --grad-card: linear-gradient(145deg, rgba(139,63,255,0.12) 0%, rgba(0,212,255,0.06) 100%);
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'Space Grotesk', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--c-bg);
+    color: var(--c-white);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ===== NOISE OVERLAY ===== */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* ===== NAV ===== */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 40px;
+    background: rgba(5,4,15,0.75);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(139,63,255,0.15);
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .nav-logo img { width: 36px; height: 36px; border-radius: 50%; }
+  .nav-logo span { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; background: var(--grad-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .nav-links { display: flex; gap: 28px; list-style: none; }
+  .nav-links a { color: var(--c-muted); text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--c-white); }
+  .nav-cta { background: var(--grad-main); border: none; border-radius: 50px; padding: 10px 24px; color: #fff; font-family: var(--font-body); font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: opacity 0.2s, transform 0.2s; }
+  .nav-cta:hover { opacity: 0.85; transform: translateY(-1px); }
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+  .hamburger span { display: block; width: 24px; height: 2px; background: var(--c-white); border-radius: 2px; }
+
+  /* ===== AMBIENT GLOWS ===== */
+  .glow-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== SECTIONS SHARED ===== */
+  section { position: relative; z-index: 1; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+  .section-label {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--c-cyan);
+    margin-bottom: 12px;
+    padding: 4px 12px;
+    border: 1px solid rgba(0,212,255,0.3);
+    border-radius: 50px;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .section-title .grad { background: var(--grad-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .section-body { color: var(--c-muted); max-width: 640px; line-height: 1.75; }
+
+  /* ===== HERO ===== */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 120px 0 80px;
+    overflow: hidden;
+  }
+  #hero .glow-orb:nth-child(1) { width: 600px; height: 600px; background: rgba(139,63,255,0.25); top: -100px; right: -100px; }
+  #hero .glow-orb:nth-child(2) { width: 400px; height: 400px; background: rgba(0,212,255,0.15); bottom: 0; left: -80px; }
+  .hero-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px 6px 6px;
+    background: rgba(139,63,255,0.15);
+    border: 1px solid rgba(139,63,255,0.3);
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-bottom: 24px;
+    color: var(--c-muted);
+  }
+  .hero-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: pulse-dot 2s infinite; }
+  @keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 5.5vw, 4.2rem);
+    font-weight: 800;
+    line-height: 1.08;
+    margin-bottom: 20px;
+  }
+  .hero-title .line2 { background: var(--grad-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero-sub { color: var(--c-muted); font-size: 1.05rem; line-height: 1.7; margin-bottom: 36px; max-width: 480px; }
+  .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--grad-main);
+    border: none;
+    border-radius: 50px;
+    padding: 14px 32px;
+    color: #fff;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(139,63,255,0.45); }
+  .btn-secondary {
+    background: transparent;
+    border: 1.5px solid rgba(139,63,255,0.5);
+    border-radius: 50px;
+    padding: 14px 32px;
+    color: var(--c-white);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-secondary:hover { border-color: var(--c-purple); background: rgba(139,63,255,0.1); }
+  .hero-visual {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+  .hero-logo-wrap {
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    background: var(--grad-main);
+    padding: 3px;
+    animation: float 4s ease-in-out infinite;
+    filter: drop-shadow(0 0 60px rgba(139,63,255,0.5));
+  }
+  .hero-logo-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+  }
+  .hero-logo-inner img { width: 100%; height: 100%; object-fit: cover; }
+  @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-18px);} }
+  .hero-stats {
+    display: flex;
+    gap: 32px;
+    margin-top: 40px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(139,63,255,0.15);
+  }
+  .stat-val { font-family: var(--font-display); font-size: 1.8rem; font-weight: 800; background: var(--grad-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .stat-label { font-size: 0.8rem; color: var(--c-muted); margin-top: 2px; }
+
+  /* ===== ABOUT ===== */
+  #about {
+    padding: 100px 0;
+    background: linear-gradient(180deg, transparent, rgba(139,63,255,0.04) 50%, transparent);
+  }
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; margin-top: 60px; }
+  .about-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .about-card {
+    background: var(--grad-card);
+    border: 1px solid rgba(139,63,255,0.18);
+    border-radius: 16px;
+    padding: 20px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .about-card:hover { border-color: rgba(139,63,255,0.4); transform: translateY(-3px); }
+  .about-icon { font-size: 1.6rem; margin-bottom: 10px; }
+  .about-card h4 { font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; }
+  .about-card p { font-size: 0.82rem; color: var(--c-muted); line-height: 1.5; }
+
+  /* ===== GETTING STARTED ===== */
+  #getting-started { padding: 100px 0; }
+  .steps { display: flex; flex-direction: column; gap: 0; margin-top: 50px; position: relative; }
+  .steps::before { content:''; position:absolute; left:27px; top:0; bottom:0; width:2px; background: linear-gradient(180deg, var(--c-purple), var(--c-cyan)); opacity:0.3; }
+  .step { display: flex; gap: 24px; position: relative; padding-bottom: 36px; }
+  .step:last-child { padding-bottom: 0; }
+  .step-num {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: var(--grad-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 0 24px rgba(139,63,255,0.4);
+  }
+  .step-content { padding-top: 10px; }
+  .step-content h3 { font-weight: 600; font-size: 1.05rem; margin-bottom: 6px; }
+  .step-content p { color: var(--c-muted); font-size: 0.9rem; line-height: 1.6; }
+
+  /* ===== SKILLS ===== */
+  #skills { padding: 100px 0; background: linear-gradient(180deg, transparent, rgba(0,212,255,0.03) 50%, transparent); }
+  .skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 50px; }
+  .skill-card {
+    background: var(--grad-card);
+    border: 1px solid rgba(0,212,255,0.12);
+    border-radius: 20px;
+    padding: 28px;
+    transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .skill-card::before { content:''; position:absolute; inset:0; background: var(--grad-main); opacity:0; transition: opacity 0.25s; border-radius: 20px; }
+  .skill-card:hover { transform: translateY(-5px); border-color: rgba(139,63,255,0.45); box-shadow: 0 12px 40px rgba(139,63,255,0.2); }
+  .skill-card:hover::before { opacity: 0.04; }
+  .skill-emoji { font-size: 2rem; margin-bottom: 14px; display: block; position: relative; z-index: 1; }
+  .skill-card h3 { font-weight: 700; font-size: 1rem; margin-bottom: 8px; position: relative; z-index: 1; }
+  .skill-card p { color: var(--c-muted); font-size: 0.84rem; line-height: 1.55; position: relative; z-index: 1; }
+
+  /* ===== OPPORTUNITIES ===== */
+  #opportunities { padding: 100px 0; }
+  .opp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 20px; margin-top: 50px; }
+  .opp-card {
+    background: rgba(217,70,239,0.06);
+    border: 1px solid rgba(217,70,239,0.18);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .opp-card:hover { transform: translateY(-4px); border-color: rgba(217,70,239,0.4); }
+  .opp-card .opp-icon { font-size: 2rem; margin-bottom: 12px; display: block; }
+  .opp-card h3 { font-weight: 600; font-size: 0.95rem; margin-bottom: 8px; }
+  .opp-card p { color: var(--c-muted); font-size: 0.82rem; line-height: 1.5; }
+
+  /* ===== RULES ===== */
+  #rules {
+    padding: 100px 0;
+    background: linear-gradient(180deg, transparent, rgba(139,63,255,0.04) 50%, transparent);
+  }
+  .rules-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 16px; margin-top: 50px; }
+  .rule-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    background: var(--grad-card);
+    border: 1px solid rgba(139,63,255,0.15);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .rule-check {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(34,197,94,0.15);
+    border: 1px solid rgba(34,197,94,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #22c55e;
+    font-size: 0.9rem;
+  }
+  .rule-item h4 { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
+  .rule-item p { color: var(--c-muted); font-size: 0.82rem; line-height: 1.5; }
+
+  /* ===== FAQ ===== */
+  #faq { padding: 100px 0; }
+  .faq-list { margin-top: 50px; display: flex; flex-direction: column; gap: 12px; max-width: 800px; }
+  .faq-item {
+    background: var(--grad-card);
+    border: 1px solid rgba(139,63,255,0.15);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .faq-item.open { border-color: rgba(139,63,255,0.4); }
+  .faq-q {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    gap: 16px;
+    user-select: none;
+  }
+  .faq-q .arrow {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: rgba(139,63,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.9rem;
+    transition: transform 0.3s, background 0.2s;
+  }
+  .faq-item.open .faq-q .arrow { transform: rotate(45deg); background: rgba(139,63,255,0.4); }
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease, padding 0.35s ease;
+    color: var(--c-muted);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    padding: 0 24px;
+  }
+  .faq-item.open .faq-a { max-height: 200px; padding: 0 24px 20px; }
+
+  /* ===== WALLET ===== */
+  #wallet { padding: 100px 0; background: linear-gradient(180deg, transparent, rgba(0,212,255,0.03) 50%, transparent); }
+  .wallet-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 16px; margin-top: 50px; }
+  .wallet-step {
+    background: var(--grad-card);
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    position: relative;
+  }
+  .wallet-step-num {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00d4ff, #8b3fff);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 0.95rem;
+    margin: 0 auto 14px;
+  }
+  .wallet-step h4 { font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
+  .wallet-step p { color: var(--c-muted); font-size: 0.8rem; line-height: 1.5; }
+  .wallet-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 32px;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(139,63,255,0.15));
+    border: 1px solid rgba(0,212,255,0.3);
+    border-radius: 50px;
+    color: var(--c-cyan);
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .wallet-link:hover { background: linear-gradient(135deg, rgba(0,212,255,0.25), rgba(139,63,255,0.25)); border-color: var(--c-cyan); }
+
+  /* ===== EVENTS ===== */
+  #events { padding: 100px 0; }
+  .events-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 20px; margin-top: 50px; }
+  .event-card {
+    border-radius: 20px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(139,63,255,0.15);
+    background: var(--grad-card);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .event-card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(139,63,255,0.15); }
+  .event-icon { font-size: 2rem; margin-bottom: 14px; display: block; }
+  .event-card h3 { font-weight: 700; font-size: 1rem; margin-bottom: 8px; }
+  .event-card p { color: var(--c-muted); font-size: 0.84rem; line-height: 1.55; }
+  .event-tag {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    padding: 3px 10px;
+    border-radius: 50px;
+    background: rgba(139,63,255,0.2);
+    color: var(--c-purple);
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    background: rgba(5,4,15,0.95);
+    border-top: 1px solid rgba(139,63,255,0.15);
+    padding: 60px 0 32px;
+    position: relative;
+    z-index: 1;
+  }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 48px; }
+  .footer-brand .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .footer-brand .logo-row img { width: 36px; height: 36px; border-radius: 50%; }
+  .footer-brand .logo-row span { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; background: var(--grad-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .footer-brand p { color: var(--c-muted); font-size: 0.875rem; line-height: 1.65; max-width: 280px; }
+  .footer-col h5 { font-weight: 600; font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--c-muted); margin-bottom: 16px; }
+  .footer-col a { display: block; color: var(--c-white); font-size: 0.875rem; text-decoration: none; margin-bottom: 10px; transition: color 0.2s; opacity: 0.7; }
+  .footer-col a:hover { opacity: 1; color: var(--c-cyan); }
+  .footer-bottom { border-top: 1px solid rgba(139,63,255,0.1); padding-top: 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: gap; gap: 12px; }
+  .footer-bottom p { color: var(--c-muted); font-size: 0.82rem; }
+  .social-row { display: flex; gap: 12px; }
+  .social-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: rgba(139,63,255,0.15);
+    border: 1px solid rgba(139,63,255,0.25);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--c-white);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  }
+  .social-btn:hover { background: rgba(139,63,255,0.35); border-color: var(--c-purple); transform: translateY(-2px); }
+
+  /* ===== SCROLL REVEAL ===== */
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    nav { padding: 14px 20px; }
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    .hero-inner { grid-template-columns: 1fr; text-align: center; gap: 40px; }
+    .hero-visual { order: -1; }
+    .hero-logo-wrap { width: 180px; height: 180px; }
+    .hero-sub { margin: 0 auto 36px; }
+    .hero-btns { justify-content: center; }
+    .hero-stats { justify-content: center; }
+    .about-grid { grid-template-columns: 1fr; }
+    .skills-grid { grid-template-columns: repeat(2,1fr); }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .footer-brand { grid-column: 1/-1; }
+  }
+  @media (max-width: 600px) {
+    .skills-grid { grid-template-columns: 1fr; }
+    .about-cards { grid-template-columns: 1fr; }
+    .section-title { font-size: 1.8rem; }
+    .footer-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="nav-logo">
+    <img id="nav-logo-img" src="" alt="Verse Logo"/>
+    <span>Verse</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#opportunities">Opportunities</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="#wallet">Wallet</a></li>
+    <li><a href="#events">Events</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('getting-started').scrollIntoView({behavior:'smooth'})">Get Started</button>
+  <div class="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="glow-orb"></div>
+  <div class="glow-orb"></div>
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-text">
+        <div class="hero-badge">
+          <span class="dot"></span>
+          Community is Live · Join Now
+        </div>
+        <h1 class="hero-title">
+          Welcome to<br/>
+          <span class="line2">Verse</span>
+        </h1>
+        <p class="hero-sub">Learn, Grow, Earn, and Build in Web3. Join a global community of builders, researchers, and creators shaping the decentralized future.</p>
+        <div class="hero-btns">
+          <a href="#getting-started" class="btn-primary">Get Started →</a>
+          <a href="#about" class="btn-secondary">Join Community</a>
+        </div>
+        <div class="hero-stats">
+          <div>
+            <div class="stat-val">Web3</div>
+            <div class="stat-label">Focused Community</div>
+          </div>
+          <div>
+            <div class="stat-val">6+</div>
+            <div class="stat-label">Skill Tracks</div>
+          </div>
+          <div>
+            <div class="stat-val">∞</div>
+            <div class="stat-label">Opportunities</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-logo-wrap">
+          <div class="hero-logo-inner">
+            <img id="hero-logo-img" src="" alt="Verse Logo"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-label">Who We Are</span>
+      <h2 class="section-title">A Web3 Community <span class="grad">Built for You</span></h2>
+      <p class="section-body">Verse is a Web3-native community focused on education, research, marketing, and content creation. We help members discover opportunities in blockchain and decentralized technologies — from DeFi and DAOs to NFTs and beyond.</p>
+    </div>
+    <div class="about-grid reveal">
+      <div>
+        <p style="color:var(--c-muted);line-height:1.8;margin-bottom:20px;">Whether you're new to crypto or a seasoned builder, Verse provides the tools, knowledge, and network you need to thrive. Our community is a launchpad for real careers and real impact in Web3.</p>
+        <p style="color:var(--c-muted);line-height:1.8;">We believe the decentralized future is built by communities — and Verse is where that future takes shape, one member at a time.</p>
+      </div>
+      <div class="about-cards">
+        <div class="about-card">
+          <div class="about-icon">🎓</div>
+          <h4>Education</h4>
+          <p>Structured learning paths in blockchain and Web3 fundamentals.</p>
+        </div>
+        <div class="about-card">
+          <div class="about-icon">🔬</div>
+          <h4>Research</h4>
+          <p>Collaborative research into protocols, ecosystems, and emerging trends.</p>
+        </div>
+        <div class="about-card">
+          <div class="about-icon">📣</div>
+          <h4>Marketing</h4>
+          <p>Learn growth strategies and community-driven marketing for Web3.</p>
+        </div>
+        <div class="about-card">
+          <div class="about-icon">✍️</div>
+          <h4>Content</h4>
+          <p>Create threads, videos, and reports that educate and inform.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GETTING STARTED -->
+<section id="getting-started">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-label">Your Journey Starts Here</span>
+      <h2 class="section-title">Getting <span class="grad">Started</span></h2>
+      <p class="section-body">Follow these five steps to go from newcomer to active Verse community member.</p>
+    </div>
+    <div class="steps reveal">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h3>Join the Verse Community</h3>
+          <p>Find us on Discord, Telegram, or our hub and request an invite. Introduce yourself in the welcome channel so the community knows you're here.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h3>Complete Your Profile</h3>
+          <p>Fill in your skills, interests, and goals. A complete profile helps the team match you with the right programs and opportunities.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h3>Connect Your Rewards Wallet</h3>
+          <p>Link your Polygon wallet on hub.vgdh.io to receive community rewards, bounties, and recognition for your contributions.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h3>Participate in Discussions</h3>
+          <p>Jump into channels that match your interests. Ask questions, share insights, and start building relationships with fellow members.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <h3>Join Learning Programs &amp; Events</h3>
+          <p>Enroll in skill tracks, attend workshops and community calls, and take on challenges to grow your Web3 expertise.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-label">Grow Your Expertise</span>
+      <h2 class="section-title">Learn Skills <span class="grad">with Verse</span></h2>
+      <p class="section-body">Six focused skill tracks designed for every level — whether you're exploring Web3 for the first time or deepening your expertise.</p>
+    </div>
+    <div class="skills-grid reveal">
+      <div class="skill-card">
+        <span class="skill-emoji">🔭</span>
+        <h3>Research</h3>
+        <p>Analyze protocols, tokenomics, and ecosystem trends. Learn how to evaluate projects and write insightful reports that the community values.</p>
+      </div>
+      <div class="skill-card">
+        <span class="skill-emoji">🤝</span>
+        <h3>Community Management</h3>
+        <p>Build and nurture online communities. Master moderation, engagement strategies, and tools used by top Web3 projects.</p>
+      </div>
+      <div class="skill-card">
+        <span class="skill-emoji">📢</span>
+        <h3>Marketing</h3>
+        <p>Learn how decentralized projects grow — from social campaigns to ambassador programs and guerrilla community-building tactics.</p>
+      </div>
+      <div class="skill-card">
+        <span class="skill-emoji">🖊️</span>
+        <h3>Content Creation</h3>
+        <p>Craft threads, explainers, videos, and newsletters that educate and inspire Web3 audiences. Storytelling is a superpower in crypto.</p>
+      </div>
+      <div class="skill-card">
+        <span class="skill-emoji">⛓️</span>
+        <h3>Web3 Education</h3>
+        <p>Understand blockchain fundamentals, DeFi, DAOs, NFTs, and more. Structured programs from beginner to advanced.</p>
+      </div>
+      <div class="skill-card">
+        <span class="skill-emoji">🌟</span>
+        <h3>Leadership</h3>
+        <p>Level up into mentorship, program coordination, and project leadership. Verse grooms its most dedicated members for senior roles.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OPPORTUNITIES -->
+<section id="opportunities">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-label">What's Waiting for You</span>
+      <h2 class="section-title">Community <span class="grad">Opportunities</span></h2>
+      <p class="section-body">Verse is more than a learning platform — it's a launchpad. Here's how you can earn, contribute, and make a name for yourself.</p>
+    </div>
+    <div class="opp-grid reveal">
+      <div class="opp-card">
+        <span class="opp-icon">🚀</span>
+        <h3>Community Campaigns</h3>
+        <p>Join organized campaigns for partner projects and earn rewards for spreading the word and driving impact.</p>
+      </div>
+      <div class="opp-card">
+        <span class="opp-icon">🏆</span>
+        <h3>Contests &amp; Challenges</h3>
+        <p>Compete in writing contests, design challenges, and research competitions with prizes for top contributors.</p>
+      </div>
+      <div class="opp-card">
+        <span class="opp-icon">📋</span>
+        <h3>Research Tasks</h3>
+        <p>Take on paid research assignments for Verse partners. Turn your knowledge into real earning opportunities.</p>
+      </div>
+      <div class="opp-card">
+        <span class="opp-icon">🦁</span>
+        <h3>Ambassador Programs</h3>
+        <p>Represent Verse and partner projects in your region or online. Ambassadors get exclusive access and perks.</p>
+      </div>
+      <div class="opp-card">
+        <span class="opp-icon">🌐</span>
+        <h3>Networking</h3>
+        <p>Connect with founders, developers, and Web3 professionals. Your next job or collaboration starts here.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RULES -->
+<section id="rules">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-label">Our Standards</span>
+      <h2 class="section-title">Rules &amp; <span class="grad">Guidelines</span></h2>
+      <p class="section-body">Verse thrives because our members respect each other and the space. These five principles keep our community strong.</p>
+    </div>
+    <div class="rules-list reveal">
+      <div class="rule-item">
+        <div class="rule-check">✓</div>
+        <div>
+          <h4>Be Respectful</h4>
+          <p>Treat every member with kindness and respect, regardless of experience level, background, or opinion.</p>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-check">✓</div>
+        <div>
+          <h4>No Spam</h4>
+          <p>Keep conversations focused and valuable. Unsolicited promotions, bots, and repetitive content are not allowed.</p>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-check">✓</div>
+        <div>
+          <h4>Help Other Members</h4>
+          <p>Share your knowledge freely. The more you give to the community, the more you get back in return.</p>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-check">✓</div>
+        <div>
+          <h4>Maintain Professionalism</h4>
+          <p>Verse members represent the community in public spaces. Conduct yourself with integrity at all times.</p>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-check">✓</div>
+        <div>
+          <h4>Follow Community Standards</h4>
+          <p>Adhere to all platform rules and Verse's code of conduct. Violations may result in removal from the community.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-label">Common Questions</span>
+      <h2 class="section-title">Frequently Asked <span class="grad">Questions</span></h2>
+      <p class="section-body">New to Verse? Here are the answers to the questions every newcomer asks.</p>
+    </div>
+    <div class="faq-list reveal">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>What is Verse?</span>
+          <span class="arrow">+</span>
+        </div>
+        <div class="faq-a">Verse is a Web3 community that combines education, research, content creation, and marketing to help members build skills and discover opportunities in blockchain and decentralized technologies. We're a launchpad for anyone looking to enter or grow within the Web3 space.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>How do I earn rewards?</span>
+          <span class="arrow">+</span>
+        </div>
+        <div class="faq-a">Rewards are earned by actively contributing to the community — completing tasks, joining campaigns, winning challenges, and participating in events. Connect your Polygon wallet on hub.vgdh.io to receive your rewards directly to your wallet.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>How do I join events?</span>
+          <span class="arrow">+</span>
+        </div>
+        <div class="faq-a">Events are announced in the community channels. Keep an eye on the announcements section on Discord or Telegram, and RSVP when signups open. Most events are free for all members and some offer attendance rewards.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>How do I participate in campaigns?</span>
+          <span class="arrow">+</span>
+        </div>
+        <div class="faq-a">Campaign opportunities are shared in dedicated channels. Once a campaign is live, follow the instructions provided — this usually involves completing tasks on partner platforms, then submitting proof of completion to qualify for rewards.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>How do I connect my wallet?</span>
+          <span class="arrow">+</span>
+        </div>
+        <div class="faq-a">Visit hub.vgdh.io and sign in using your email, GitHub, or Discord account. Navigate to the Rewards section, click Connect Wallet, choose your Polygon wallet (MetaMask or similar), and sign the confirmation message. Your wallet is then linked to your Verse profile.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WALLET -->
+<section id="wallet">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-label">Step-by-Step</span>
+      <h2 class="section-title">Rewards Wallet <span class="grad">Setup Guide</span></h2>
+      <p class="section-body">Follow these steps to connect your Polygon wallet and start receiving rewards for your contributions to Verse.</p>
+    </div>
+    <div class="wallet-steps reveal">
+      <div class="wallet-step">
+        <div class="wallet-step-num">1</div>
+        <h4>Visit Hub</h4>
+        <p>Go to <strong>hub.vgdh.io</strong> in your browser</p>
+      </div>
+      <div class="wallet-step">
+        <div class="wallet-step-num">2</div>
+        <h4>Sign In</h4>
+        <p>Log in with Email, GitHub, or Discord</p>
+      </div>
+      <div class="wallet-step">
+        <div class="wallet-step-num">3</div>
+        <h4>Open Rewards</h4>
+        <p>Navigate to the Rewards section in your dashboard</p>
+      </div>
+      <div class="wallet-step">
+        <div class="wallet-step-num">4</div>
+        <h4>Connect Wallet</h4>
+        <p>Click Connect Wallet and choose your Polygon wallet</p>
+      </div>
+      <div class="wallet-step">
+        <div class="wallet-step-num">5</div>
+        <h4>Sign &amp; Confirm</h4>
+        <p>Sign the message in your wallet to confirm and complete setup</p>
+      </div>
+    </div>
+    <div style="margin-top:40px;" class="reveal">
+      <a href="https://hub.vgdh.io" class="wallet-link" target="_blank">
+        🔗 Go to hub.vgdh.io
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- EVENTS -->
+<section id="events">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-label">Community Calendar</span>
+      <h2 class="section-title">Community <span class="grad">Events</span></h2>
+      <p class="section-body">Verse runs regular events to keep the community learning, connected, and growing. Here's what to look forward to.</p>
+    </div>
+    <div class="events-grid reveal">
+      <div class="event-card">
+        <span class="event-icon">🛠️</span>
+        <h3>Workshops</h3>
+        <p>Hands-on sessions teaching practical Web3 skills — from wallet setup to writing smart contracts.</p>
+        <span class="event-tag">Regular</span>
+      </div>
+      <div class="event-card">
+        <span class="event-icon">📞</span>
+        <h3>Community Calls</h3>
+        <p>Weekly or bi-weekly calls where the team shares updates, answers questions, and highlights top contributors.</p>
+        <span class="event-tag">Weekly</span>
+      </div>
+      <div class="event-card">
+        <span class="event-icon">🏫</span>
+        <h3>School Invasions</h3>
+        <p>Outreach events at universities and colleges to introduce students to Web3 and the Verse community.</p>
+        <span class="event-tag">Ongoing</span>
+      </div>
+      <div class="event-card">
+        <span class="event-icon">📚</span>
+        <h3>Learning Sessions</h3>
+        <p>Focused study sessions with expert guests covering DeFi, DAOs, NFTs, blockchain infrastructure and more.</p>
+        <span class="event-tag">Monthly</span>
+      </div>
+      <div class="event-card">
+        <span class="event-icon">⚡</span>
+        <h3>Challenges</h3>
+        <p>Time-limited competitions where members can demonstrate skills and win rewards for creative contributions.</p>
+        <span class="event-tag">Recurring</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo-row">
+          <img id="footer-logo-img" src="" alt="Verse Logo"/>
+          <span>Verse</span>
+        </div>
+        <p>A Web3 community built on education, research, and opportunity. Join thousands of members learning and earning in the decentralized space.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Community</h5>
+        <a href="#about">About Verse</a>
+        <a href="#getting-started">Getting Started</a>
+        <a href="#rules">Guidelines</a>
+        <a href="#events">Events</a>
+      </div>
+      <div class="footer-col">
+        <h5>Learn</h5>
+        <a href="#skills">Skill Tracks</a>
+        <a href="#opportunities">Opportunities</a>
+        <a href="#wallet">Wallet Setup</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <div class="footer-col">
+        <h5>Links</h5>
+        <a href="https://hub.vgdh.io" target="_blank">Community Hub</a>
+        <a href="#" target="_blank">Discord</a>
+        <a href="#" target="_blank">Telegram</a>
+        <a href="#" target="_blank">Twitter / X</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Verse Community. All rights reserved.</p>
+      <div class="social-row">
+        <a class="social-btn" href="#" title="Twitter">𝕏</a>
+        <a class="social-btn" href="#" title="Discord">💬</a>
+        <a class="social-btn" href="#" title="Telegram">✈️</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ===== LOGO BASE64 =====
+  const LOGO_B64 = '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';
+  const logoSrc = 'data:image/jpeg;base64,' + LOGO_B64;
+  document.getElementById('nav-logo-img').src = logoSrc;
+  document.getElementById('hero-logo-img').src = logoSrc;
+  document.getElementById('footer-logo-img').src = logoSrc;
+
+  // ===== FAQ =====
+  function toggleFaq(el) {
+    const item = el.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+
+  // ===== SCROLL REVEAL =====
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // ===== MOBILE MENU =====
+  function toggleMenu() {
+    const links = document.querySelector('.nav-links');
+    if (links.style.display === 'flex') {
+      links.style.display = '';
+    } else {
+      links.style.cssText = 'display:flex;flex-direction:column;position:absolute;top:64px;left:0;right:0;background:rgba(5,4,15,0.97);padding:20px;gap:16px;border-bottom:1px solid rgba(139,63,255,0.2);';
+    }
+  }
+</script>
+</body>
+</html>
